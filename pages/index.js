@@ -1,41 +1,40 @@
 import Head from 'next/head'
 import Link from 'next/link'
-import Date from '../components/date'
+import Image from 'next/image'
+import { useEffect, useState } from 'react'
 import Layout, { siteTitle } from '../components/layout'
 import utilStyles from '../styles/utils.module.css'
-import { getSortedPostsData } from '../lib/posts'
+import Web3 from 'web3'
 
-export async function getStaticProps() {
-  const allPostsData = getSortedPostsData()
-  return {
-    props: {
-      allPostsData
-    }
-  }
-}
- 
-export default function Home({ allPostsData }) {
+export default function Home() {
+
+  const [web3, setWeb3] = useState(null)
+  const [address, setAddress] = useState(null)
+
+  useEffect(() => {
+    window.ethereum ?
+      ethereum.request({ method: "eth_requestAccounts" }).then((accounts) => {
+        setAddress(accounts[0])
+        let w3 = new Web3(ethereum)
+        setWeb3(w3)
+      }).catch((err) => console.log(err))
+    : console.log("Please install MetaMask")
+  }, [])
+
   return (
     <Layout home>
-      <Head>
-        <title>{siteTitle}</title>
-      </Head>
-      <section className={`${utilStyles.headingMd} ${utilStyles.padding1px}`}>
-        <h2 className={utilStyles.headingLg}>Blog</h2>
-        <ul className={utilStyles.list}>
-          {allPostsData.map(({ id, date, title }) => (
-            <li className={utilStyles.listItem} key={id}>
-              <Link href={`/posts/${id}`}>
-                <a>{title}</a>
-              </Link>
-              <br />
-              <small className={utilStyles.lightText}>
-                <Date dateString={date} />
-              </small>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <div className="text-center m-5 mx-auto w-1/2">
+        <div className="p-3 border-2 border-gray-700 hover:shadow-inner text-center rounded-lg cursor-pointer">
+          <span className="flex items-center justify-center">
+            <Image 
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/32px-MetaMask_Fox.svg.png"
+              width="30px"
+              height="30px"
+              />
+            <button className="m-1 font-bold text-black"> Connect Wallet </button>
+          </span>
+        </div>
+      </div>
     </Layout>
   )
 }
